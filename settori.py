@@ -7,8 +7,8 @@ import matplotlib.patches as pat #polygon
 import networkx as nx
 
 #Lettura del file excel/csv esportato da NEST
-#airblock = pd.read_excel("ENV_1601_408Europe.xlsx", sheet_name="Airblock" )
-airblock = pd.read_excel("LI_ENV_1601_408.xlsx", sheet_name="Airblock" )
+airblock = pd.read_excel("ENV_1601_408Europe.xlsx", sheet_name="Airblock" ) #Europe
+#airblock = pd.read_excel("LI_ENV_1601_408.xlsx", sheet_name="Airblock" ) #Italy
 airblock.columns=["ID", "Latitude", "Longitude"]
 airblock.head()
 
@@ -113,5 +113,58 @@ gr.add_edges_from(edges)
 nx.draw(gr, node_size=300, node_color='yellow', with_labels=True)
 plt.show()
 
-file_name = 'matrAddItaly.csv'
+file_name = 'matAdBlocksEurope.csv'
 dfma.to_csv(file_name, encoding='utf-8', index=False)
+
+dfMAdBlocks = pd.read_csv("matAdBlocksEurope.csv")
+dfMAdBlocks.index = dfMAdBlocks.columns
+dfMAdBlocks.head()
+
+#Leggo Settori:
+#Per ogni settore devo crere una lista di blocchi che lo compongono quindi stabilire
+#una matrice delle adiacenze dei settori in base alla matrice delle adiacenze dei blocchi
+
+sector = pd.read_excel("ENV_1601_408Europe.xlsx", sheet_name="Sector" ) #Europe
+#airblock = pd.read_excel("LI_ENV_1601_408.xlsx", sheet_name="Sector" ) #Italy
+sector.columns=["Sector_ID", "Sector_Name", "Sector_Type", "Airblock_ID", "MinAltitude", "MaxAltitude", "Positive_Negative"]
+sector.head()
+
+idSector = []
+secBlocks = []
+j = -1
+for i in range(0,len(sector)):
+    if str(sector.Sector_ID[i]) != "nan":
+        idSector.append(str(sector.Sector_ID[i]))
+        secBlocks.append([])
+        j = j + 1
+    else :
+        secBlocks[j].append((str(sector.Airblock_ID[i]), sector.MinAltitude[i], sector.MaxAltitude[i]))
+
+def adiacenzaSectors(i,j):
+    for k in range(0, (len(secBlocks[i]))):
+        for l in range(0, (len(secBlocks[j]))):
+            if(dfMAdBlocks.loc[secBlocks[i][k][0]][secBlocks[j][l][0]] == 1):
+                return True       
+    return False
+
+n = len(idSector)
+mAdS = [ [0] * n for _ in range(n)]
+
+for i in range(0, len(mAdS)):#iterazioni sui blocchi
+    for j in range((i+1), len(mAdS)):
+        if adiacenzaSectors(i,j):
+            mAdS[i][j] = mAdS[i][j] + 1
+            mAdS[j][i] = mAdS[j][i] + 1
+
+matrixSector = np.asmatrix(mAdS)
+dfmaSector = pd.DataFrame(matrixSector, index = idSector, columns = idSector)
+
+file_name = 'matAdSectorEurope.csv'
+dfmaSector.to_csv(file_name, encoding='utf-8', index=False)
+
+rows, cols = np.where(matrixSector == 1)
+edges = zip(rows.tolist(), cols.tolist())
+gr = nx.Graph()
+gr.add_edges_from(edges)
+nx.draw(gr, node_size=300, node_color='yellow', with_labels=True)
+plt.show()
