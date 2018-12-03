@@ -49,11 +49,49 @@ nell'altro Per vertice intenderemo un suo intorno "largo" formato da 8 punti ad 
 #se almeno un vertice del blocco i-esimo puo' essere contenuto nel blocco j, perche' questo sia vero almeno
 #2 punti su 8 del suo intorno dovranno appartenervi
 
+sogliaCounter=2
+intorno=100
+
 def adiacenza(i,j):
     for k in range(0, (len(coordinate[i]))):
         poly = pat.Polygon(xy = np.array(coordinate[j]))  
+        counter = 0
         if(poly.contains_point(point=coordinate[i][k])):
-            return True
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0]+intorno,coordinate[i][k][1]))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0]-intorno,coordinate[i][k][1]))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0],coordinate[i][k][1]+intorno))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0],coordinate[i][k][1]-intorno))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0]+intorno,coordinate[i][k][1]+intorno))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0]-intorno,coordinate[i][k][1]+intorno))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0]-intorno,coordinate[i][k][1]-intorno))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
+        if(poly.contains_point(point=(coordinate[i][k][0]+intorno,coordinate[i][k][1]-intorno))):
+            counter = counter + 1
+            if(counter > sogliaCounter):
+                return True
     return False
 
 n = len(idBlocks)
@@ -75,5 +113,5 @@ gr.add_edges_from(edges)
 nx.draw(gr, node_size=300, node_color='yellow', with_labels=True)
 plt.show()
 
-file_name = 'matrAdd.csv'
+file_name = 'matrAddItaly.csv'
 dfma.to_csv(file_name, encoding='utf-8', index=False)
