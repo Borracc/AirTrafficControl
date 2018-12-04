@@ -40,8 +40,7 @@ def cmpCoord(cA, cB):
     return (cA[0] == cB[0]) and (cA[1] == cB[1])
 
 '''
-L'adiacenza va modificata! .. non e' detto che solo se 2 blocchi hanno 2 vertici consecutivi in comune,
-allora sono adiacenti Diremo che un blocco e' adiacente ad un altro se ha almeno un vertice che e' contenuto
+Diremo che un blocco e' adiacente ad un altro se ha almeno un vertice che e' contenuto
 nell'altro Per vertice intenderemo un suo intorno "largo" formato da 8 punti ad una certa distanza
 '''
 #Calcolo delle adiacenze:
@@ -49,7 +48,7 @@ nell'altro Per vertice intenderemo un suo intorno "largo" formato da 8 punti ad 
 #se almeno un vertice del blocco i-esimo puo' essere contenuto nel blocco j, perche' questo sia vero almeno
 #2 punti su 8 del suo intorno dovranno appartenervi
 
-sogliaCounter=2
+sogliaCounter=1
 intorno=100
 
 def adiacenza(i,j):
@@ -98,10 +97,11 @@ n = len(idBlocks)
 mAd = [ [0] * n for _ in range(n)]
 
 for i in range(0, len(coordinate)):#iterazioni su blocco
-    for j in range((i+1), len(coordinate)):
-        if adiacenza(i,j):
-            mAd[i][j] = mAd[i][j] + 1
-            mAd[j][i] = mAd[j][i] + 1
+    for j in range(0, len(coordinate)):
+        if i != j:
+            if adiacenza(i,j):
+                mAd[i][j] = 1
+                mAd[j][i] = 1
 
 mAdd = np.asmatrix(mAd)
 dfma = pd.DataFrame(mAdd, index = idBlocks, columns = idBlocks)
@@ -113,10 +113,10 @@ gr.add_edges_from(edges)
 nx.draw(gr, node_size=300, node_color='yellow', with_labels=True)
 plt.show()
 
-file_name = 'matAdBlocksEurope.csv'
+file_name = 'matAdBlocks_Europe.csv'
 dfma.to_csv(file_name, encoding='utf-8', index=False)
 
-dfMAdBlocks = pd.read_csv("matAdBlocksEurope.csv")
+dfMAdBlocks = pd.read_csv("matAdBlocks_Europe.csv")
 dfMAdBlocks.index = dfMAdBlocks.columns
 dfMAdBlocks.head()
 
@@ -159,7 +159,7 @@ for i in range(0, len(mAdS)):#iterazioni sui blocchi
 matrixSector = np.asmatrix(mAdS)
 dfmaSector = pd.DataFrame(matrixSector, index = idSector, columns = idSector)
 
-file_name = 'matAdSectorEurope.csv'
+file_name = 'matAdSectors_Europe.csv'
 dfmaSector.to_csv(file_name, encoding='utf-8', index=False)
 
 rows, cols = np.where(matrixSector == 1)
